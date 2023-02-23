@@ -6,7 +6,6 @@ const config = require('yamljs').load(__dirname + '/config.yml')
 const _ = require('lodash.template')
 const template = require('fs').readFileSync('./templates/client/template.md')
 const templateTech = require('fs').readFileSync('./templates/tech/template.md')
-const templateHeader = require('fs').readFileSync('./templates/header.md')
 const async = require('async')
 const pug = require("pug");
 const util = require('util')
@@ -33,7 +32,11 @@ function compile(template, data) {
 
 
 function sendMailData(values) {
-  const htmlReady = pug.renderFile(path.join(`${__dirname}/../templates/pdf/mail_template.pug`), {content: values.text});
+  const htmlReady = pug.renderFile(path.join(`${__dirname}/../templates/pdf/mail_template.pug`),
+      {
+        content: values.markdown,
+        title: values.subject
+      });
 
   transporter.sendMail(
       {
@@ -61,7 +64,7 @@ function sendMail(opts) {
   const mailData = {
     from: opts.from || config.mail.from,
     subject: opts.subject,
-    markdown: compile(templateHeader, opts.text),
+    markdown: opts.text,
     attachments: opts.attachments || []
   }
 
