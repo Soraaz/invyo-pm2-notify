@@ -4,7 +4,9 @@ const nodemailer = require('nodemailer')
 const markdown = require('nodemailer-markdown').markdown
 const config = require('yamljs').load(__dirname + '/config.yml')
 const _ = require('lodash.template')
-const template = require('fs').readFileSync(config.template)
+const template = require('./templates/client/template.md')
+const templateTech = require('./templates/tech/template.md')
+const templateHeader = require('./templates/header.md')
 const async = require('async')
 const util = require('util')
 const p = require('path')
@@ -27,6 +29,16 @@ function compile(template, data) {
     return s(data)
 }
 
+function sendMailData(values) {
+  transporter.sendMail(values, function(err, info) {
+    if(err) {
+      console.error(err)
+    }
+
+    console.log('Mail sent', info)
+  })
+}
+
 /**
  * Send an email through smtp transport
  * @param object opts
@@ -37,21 +49,24 @@ function sendMail(opts) {
     throw new ReferenceError("No text or subject to be mailed")
   }
 
-  const values = {
+  const mailData = {
     from: opts.from || config.mail.from,
-    to: opts.to ? opts.to : config.mail.to,
     subject: opts.subject,
-    markdown: opts.text,
+    markdown: compile(templateHeader, opts.text),
     attachments: opts.attachments || []
   }
 
-  transporter.sendMail(values, function(err, info) {
-    if(err) {
-      console.error(err)
-    }
+  if (config.mail.client)
+  {
+    mailData.to = config.mail.client;
+    sendMailData(mailData);
+  }
 
-    console.log('Mail sent', info)
-  })
+  if (config.mail.tech)
+  {
+    mailData.to = config.mail.tech;
+    sendMailData(mailData);
+  }
 }
 
 /**

@@ -1,10 +1,17 @@
 mail:
     from: "me@example.com"
-    to: "you@example.com"
+    client: "you@example.com"
+    tech: "you@example.com"
 # see https://github.com/andris9/nodemailer-smtp-transport#usage
 smtp:
     host: "smtp.gmail.com"
-    port: 25
+    port: 587
+    auth:
+        user: "you@example.com"
+        pass: "password"
+        tls:
+            rejectUnauthorized: false
+
 # Events list:
 # - restart
 # - delete
@@ -15,7 +22,6 @@ smtp:
 # - online
 events:
     - exit
-template: './template.md'
 # this is the process subject if there is only one event to be mailed
 subject: '<%= process.name %> errored (<%= process.NODE_ENV %>)'
 # if multiple events are going to be mailed, use a global subject:
