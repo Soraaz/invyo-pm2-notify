@@ -8,8 +8,10 @@ const template = require('fs').readFileSync('./templates/client/template.md')
 const templateTech = require('fs').readFileSync('./templates/tech/template.md')
 const templateHeader = require('fs').readFileSync('./templates/header.md')
 const async = require('async')
+const pug = require("pug");
 const util = require('util')
 const p = require('path')
+const path = require("path");
 
 const transporter = nodemailer.createTransport(require('nodemailer-smtp-transport')(config.smtp))
 
@@ -29,8 +31,15 @@ function compile(template, data) {
     return s(data)
 }
 
+
 function sendMailData(values) {
-  transporter.sendMail(values, function(err, info) {
+  const htmlReady = pug.renderFile(path.join(`${__dirname}/../templates/pdf/mail_template.pug`), {content: values.text});
+
+  transporter.sendMail(
+      {
+        ...values,
+        html: htmlReady
+      }, function(err, info) {
     if(err) {
       console.error(err)
     }
