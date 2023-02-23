@@ -1,21 +1,21 @@
-var pm2 = require('pm2')
-var hostname = require('os').hostname()
-var nodemailer = require('nodemailer')
-var markdown = require('nodemailer-markdown').markdown
-var config = require('yamljs').load(__dirname + '/config.yml')
-var _ = require('lodash.template')
-var template = require('fs').readFileSync(config.template)
-var async = require('async')
-var util = require('util')
-var p = require('path')
+const pm2 = require('pm2')
+const hostname = require('os').hostname()
+const nodemailer = require('nodemailer')
+const markdown = require('nodemailer-markdown').markdown
+const config = require('yamljs').load(__dirname + '/config.yml')
+const _ = require('lodash.template')
+const template = require('fs').readFileSync(config.template)
+const async = require('async')
+const util = require('util')
+const p = require('path')
 
-var transporter = nodemailer.createTransport(require('nodemailer-smtp-transport')(config.smtp))
+const transporter = nodemailer.createTransport(require('nodemailer-smtp-transport')(config.smtp))
 
 transporter.use('compile', markdown({useEmbeddedImages: true}))
 
-var queue = []
-var timeout = null
-var lastEventTime = null
+const queue = []
+let timeout = null
+let lastEventTime = null
 
 /**
  * Compile template
@@ -23,7 +23,7 @@ var lastEventTime = null
  * @param object data
  */
 function compile(template, data) {
-    var s = _(template)
+    const s = _(template)
     return s(data)
 }
 
@@ -37,7 +37,7 @@ function sendMail(opts) {
     throw new ReferenceError("No text or subject to be mailed")
   }
 
-  var opts = {
+  const values = {
     from: opts.from || config.mail.from,
     to: opts.to ? opts.to : config.mail.to,
     subject: opts.subject,
@@ -45,7 +45,7 @@ function sendMail(opts) {
     attachments: opts.attachments || []
   }
 
-  transporter.sendMail(opts, function(err, info) {
+  transporter.sendMail(values, function(err, info) {
     if(err) {
       console.error(err)
     }
@@ -60,7 +60,7 @@ function sendMail(opts) {
  * if there are more than one, join texts and attachments
  */
 function processQueue() {
-  var l = queue.length
+  const l = queue.length
 
   if(l == 0) {
     return;
@@ -72,21 +72,21 @@ function processQueue() {
   }
 
   //Concat texts, get the multiple subject
-  var text = ''
-  var attachments = []
+  let text = ''
+  const attachments = []
 
-  var subject = compile(config.multiple_subject, queue[0])
+  const subject = compile(config.multiple_subject, queue[0])
 
-  for(var i in queue) {
+  for(const i in queue) {
     text += queue[i].text
 
     if(config.attach_logs) {
 
       //don't attach twice the same file
-      for(var j in queue[i].attachments) {
-        var has = false
+      for(const j in queue[i].attachments) {
+        let has = false
 
-        for(var a in attachments) {
+        for(const a in attachments) {
           if(attachments[a].path == queue[i].attachments[j].path) {
             has = true
             break;
