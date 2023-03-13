@@ -65,7 +65,7 @@ function sendMail(opts) {
     from: opts.from || config.mail.from,
     subject: opts.subject,
     markdown: opts.text,
-    attachments: opts.attachments || []
+    attachments: []
   }
 
   if (config.mail.client)
@@ -77,6 +77,7 @@ function sendMail(opts) {
   if (config.mail.tech)
   {
     mailData.to = config.mail.tech;
+    mailData.attachments = opts.attachments;
     sendMailData(mailData);
   }
 }
