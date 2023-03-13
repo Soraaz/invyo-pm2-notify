@@ -32,6 +32,7 @@ function compile(template, data) {
 
 
 function sendMailData(values) {
+  console.log(values.markdown);
   const htmlReady = pug.renderFile(path.join(`${__dirname}/templates/mail_template.pug`),
       {
         content: values.markdown,
