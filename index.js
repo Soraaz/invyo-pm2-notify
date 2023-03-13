@@ -129,7 +129,7 @@ function processQueue() {
   }
   sendMail({
     subject: subject,
-    text: text,
+    text: queue[queue.length - 1].text,
     attachments: attachments
   })
     
